@@ -1,0 +1,144 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["auth", "members", "orders", "products", "public"]
+}
+
+model Member {
+  email     String     @unique @db.VarChar(255)
+  password  String     @db.VarChar(255)
+  role      MemberRole @default(MEMBER)
+  createdAt DateTime?  @default(now()) @db.Timestamp(6)
+  updatedAt DateTime?  @db.Timestamp(6)
+  createdBy String?    @default("System") @db.VarChar(255)
+  memberId  String     @unique @db.Uuid
+  updatedBy String?    @default("System") @db.VarChar(255)
+  id        Int        @id @default(autoincrement())
+  Profile   Profile?
+  Order     Order[]
+
+  @@schema("auth")
+}
+
+model Profile {
+  memberId  String    @unique @db.Uuid
+  name      String?   @db.VarChar(255)
+  phone     String?   @db.VarChar(10)
+  address   String?   @db.VarChar(255)
+  createdAt DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt DateTime? @db.Timestamp(6)
+  createdBy String?   @default("System") @db.VarChar(255)
+  updatedBy String?   @default("System") @db.VarChar(255)
+  id        Int       @id @default(autoincrement())
+  balance   Decimal?  @default(0.0) @db.Decimal(10, 2)
+  point     Int?      @default(0)
+  Member    Member    @relation(fields: [memberId], references: [memberId])
+
+  @@schema("members")
+}
+
+model Order {
+  memberId  String      @db.Uuid
+  total     Float
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now()) @db.Timestamp(0)
+  updatedAt DateTime    @db.Timestamp(0)
+  createdBy String      @default("System") @db.VarChar(255)
+  orderId   String      @unique @db.Uuid
+  updatedBy String      @default("System") @db.VarChar(255)
+  id        Int         @id @default(autoincrement())
+  Member    Member      @relation(fields: [memberId], references: [memberId])
+  OrderItem OrderItem[]
+
+  @@schema("orders")
+}
+
+model OrderItem {
+  orderId     String   @db.Uuid
+  productId   String   @db.Uuid
+  quantity    Int
+  price       Float
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime @db.Timestamp(0)
+  createdBy   String   @default("System") @db.VarChar(255)
+  orderItemId String   @unique @db.Uuid
+  updatedBy   String   @default("System") @db.VarChar(255)
+  id          Int      @id @default(autoincrement())
+  Order       Order    @relation(fields: [orderId], references: [orderId])
+  Product     Product  @relation(fields: [productId], references: [productId])
+
+  @@schema("orders")
+}
+
+model Category {
+  name        String    @db.VarChar(255)
+  description String?   @db.VarChar(255)
+  image       String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime  @db.Timestamp(0)
+  categoryId  String    @unique @db.Uuid
+  createdBy   String    @default("System") @db.VarChar(255)
+  updatedBy   String    @default("System") @db.VarChar(255)
+  id          Int       @id @default(autoincrement())
+  Product     Product[]
+
+  @@schema("products")
+}
+
+model Product {
+  name        String      @db.VarChar(255)
+  price       Float?
+  description String      @db.VarChar(255)
+  stock       Int
+  discount    Float?
+  categoryId  String      @db.Uuid
+  createdAt   DateTime    @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime    @db.Timestamp(0)
+  createdBy   String      @default("System") @db.VarChar(255)
+  productId   String      @unique @db.Uuid
+  updatedBy   String      @default("System") @db.VarChar(255)
+  id          Int         @id @default(autoincrement())
+  OrderItem   OrderItem[]
+  Category    Category    @relation(fields: [categoryId], references: [categoryId])
+  Promotion   Promotion[] @relation("ProductToPromotion")
+
+  @@schema("products")
+}
+
+model Promotion {
+  title       String    @db.VarChar(255)
+  description String?   @db.VarChar(255)
+  discount    Float
+  startDate   DateTime  @db.Timestamp(0)
+  endDate     DateTime  @db.Timestamp(0)
+  createdAt   DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime  @db.Timestamp(0)
+  createdBy   String    @default("System") @db.VarChar(255)
+  promotionId String    @unique @db.Uuid
+  updatedBy   String    @default("System") @db.VarChar(255)
+  id          Int       @id @default(autoincrement())
+  Product     Product[] @relation("ProductToPromotion")
+
+  @@schema("products")
+}
+
+enum MemberRole {
+  ADMIN
+  MEMBER
+
+  @@schema("auth")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+
+  @@schema("orders")
+}
