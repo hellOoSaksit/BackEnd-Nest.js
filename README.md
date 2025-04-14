@@ -43,8 +43,6 @@ AUTHMEMBER_TTL = Number
 
 ✅ Input Validation & Error Handling
 
-✅ API Documentation with Swagger (optional)
-
 ✅ Project Structure Ready for Scaling
 
 
