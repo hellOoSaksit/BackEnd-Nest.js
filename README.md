@@ -1,98 +1,225 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+🚀 Backend 
+-
+Authentication API (JWT, RBAC, Refresh Token, Redis)
+A secure and scalable authentication system built for modern web applications.
+Includes features like JWT-based authentication, Role-Based Access Control, Session Management, and Refresh Token logic, powered by Redis for performance.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
+**Server:** Nest.Js , Redis , Postgresql
 
-## Project setup
 
-```bash
-$ npm install
+## .ENV
+```
+DATABASE_URL=""
+JWT_SECRET = ""
+JWT_EXPIRESIN = "5m" 
+JWT_REFRESH = ""
+JWT_REFRESH_EXPIRESIN = "7d"
+COOKIE_SECRET = ""
+BULL_HOST = 'localhost'
+BULL_PORT = Number
+REDIS_HOST = 'localhost'
+REDIS_PORT = Number
+AUTHMEMBER_TTL = Number
+
+```
+## 📌 Features
+
+
+✅ User Registration & Login
+
+✅ Role-Based Access Control (RBAC) — (Admin / User)
+
+✅ JWT Access Token + Refresh Token System
+
+✅ Secure Session with HTTP-only Cookies
+
+✅ Redis for Token Storage and Caching
+
+✅ Authentication Middleware
+
+✅ Input Validation & Error Handling
+
+✅ API Documentation with Swagger (optional)
+
+✅ Project Structure Ready for Scaling
+
+
+
+## ⚙️ Optimizations
+
+- **Redis-powered Job Queue for Registration**  
+   Used Redis to offload registration-related tasks such as sending emails and 
+   storing audit logs into background jobs. This significantly improved 
+   response time and reduced load on the main thread.
+
+
+
+### API EXAMPLE
+
+### Register User
+
+This endpoint allows the client to register a new user with the provided email, password, and name.
+
+#### Request Body
+```
+http://localhost:5000/api/auth/register
+```
+- email (text, required): The email address of the user.
+    
+- password (text, required): The password for the user account.
+    
+- name (text, required): The name of the user.
+    
+
+#### Response (201 - Created)
+
+The response will be in JSON format and will have the following schema:
+
+``` json
+{
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "string"
+        },
+        "message": {
+            "type": "string"
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "queueId": {
+                    "type": "string"
+                },
+                "queuePosition": {
+                    "type": "string"
+                },
+                "estimatedTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "requestedBy": {
+            "type": "string"
+        }
+    }
+}
+
+ ```
+ This endpoint allows users to log in by sending a POST request to the specified URL. The request should include the user's email and password in the request body. Upon successful execution, the server responds with a status code of 201 and a JSON object in the response body. The JSON object contains a status message, along with data including access_token and refresh_token.
+
+### Request Body
+```
+http://localhost:5000/api/auth/login
+```
+- email (string): The email of the user.
+    
+- password (string): The password of the user.
+    
+
+### Response
+
+- Status: 201
+    
+- Content-Type: application/json
+    
+- status (string): A status message indicating the outcome of the request.
+    
+- message (string): A message related to the login process.
+    
+- data (object): An object containing access_token and refresh_token for the logged-in user.
+    
+    - access_token (string): The access token for the user's session.
+        
+    - refresh_token (string): The refresh token for the user's session.
+
+### example
+```
+{
+    "status": "SUCCESS",
+    "message": "เข้าสู่ระบบสำเร็จ",
+    "data": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.",
+        "refresh_token": "owLCJjcmVhdGVkQXQiOiIyMDI1LTA0LTE0VDEzOjI2OjM3LjExM1o"
+    }
+}
 ```
 
-## Compile and run the project
+### Get User Profile
 
-```bash
-# development
-$ npm run start
+This endpoint is used to retrieve the profile information of the authenticated user.
 
-# watch mode
-$ npm run start:dev
+**Request Body**  
+This is a GET request and does not require a request body.
 
-# production mode
-$ npm run start:prod
-```
+**Response**
 
-## Run tests
+- Status: 200 OK
+    
+- Content-Type: application/json
+    
 
-```bash
-# unit tests
-$ npm run test
+``` json
+{
+    "email": "",
+    "memberId": "",
+    "name": "",
+    "phone": null,
+    "address": null,
+    "role": "",
+    "point": 0,
+    "balance": 0,
+    "createdAt": "",
+    "updatedAt": null,
+    "createdBy": "",
+    "updatedBy": "",
+    "iat": 0,
+    "exp": 0
+}
 
-# e2e tests
-$ npm run test:e2e
+ ```
 
-# test coverage
-$ npm run test:cov
-```
+The response contains the user's profile information including email, member ID, name, phone, address, role, points, balance, creation and update details, and token expiration information.
+### Refresh Access Token
 
-## Deployment
+This endpoint is used to refresh the access token by providing the refresh token.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+#### Request Body
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- No request body is required for this endpoint.
+    
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+#### Response
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The response for this request is a JSON object with the following schema:
 
-## Resources
+``` json
+{
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "string"
+        },
+        "message": {
+            "type": "string"
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
 
-Check out a few resources that may come in handy when working with NestJS:
+ ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
